@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="bn" data-l="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dog &amp; Cat Detection – Documentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f8fb;--card:#fff;--tx:#1d2733;--mu:#5b6b7c;--pr:#2563eb;--bd:#dde4ec;--cat:#ff8c00;--dog:#00c800}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;font-family:"Noto Sans Bengali","Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--tx);line-height:1.75}
+html[data-l=en] .b{display:none}html[data-l=bn] .e{display:none}
+header{position:fixed;top:0;left:0;right:0;height:54px;background:var(--pr);color:#fff;display:flex;align-items:center;gap:12px;padding:0 16px;z-index:10}
+header h1{font-size:17px;margin:0;flex:1}
+header button{background:#fff;color:var(--pr);border:0;border-radius:6px;padding:6px 12px;font:600 14px inherit;font-family:inherit;cursor:pointer}
+#burger{display:none}
+nav{position:fixed;top:54px;left:0;bottom:0;width:230px;background:var(--card);border-right:1px solid var(--bd);padding:14px 0;overflow:auto}
+nav a{display:block;padding:9px 20px;color:var(--tx);text-decoration:none;font-size:15px;border-left:3px solid transparent}
+nav a:hover{background:#eef3ff;border-left-color:var(--pr)}
+main{margin:54px 0 0 230px;padding:24px 28px;max-width:980px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:18px 22px;margin-bottom:20px;scroll-margin-top:70px}
+h2{margin:0 0 10px;font-size:21px;color:var(--pr)}
+pre{background:#0f1b2d;color:#d7e3f4;padding:14px;border-radius:8px;overflow:auto;font-size:13.5px;line-height:1.5}
+table{border-collapse:collapse;width:100%;font-size:14.5px}th,td{border:1px solid var(--bd);padding:7px 10px;text-align:left}th{background:#eef3ff}
+code{background:#eef3ff;padding:1px 6px;border-radius:4px;font-size:13.5px}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+.flow div{background:#eef3ff;border:1px solid #bcd0ff;border-radius:8px;padding:8px 12px;font-size:14px;text-align:center}
+.flow i{font-style:normal;color:var(--mu)}
+.io{display:flex;flex-wrap:wrap;gap:18px}.io figure{margin:0;flex:1;min-width:240px}
+.img{position:relative;height:190px;border-radius:8px;border:1px solid var(--bd);background:linear-gradient(135deg,#cfe3c8,#e8dcc0)}
+.img span.a{position:absolute;font-size:46px}
+.bx{position:absolute;border:4px solid;border-radius:2px}.bx em{position:absolute;top:-24px;left:-4px;color:#fff;font:600 12px sans-serif;padding:2px 6px;font-style:normal}
+figcaption{font-size:13.5px;color:var(--mu);margin-top:6px}
+details{border:1px solid var(--bd);border-radius:8px;margin:8px 0;padding:8px 14px;background:#fbfcfe}
+summary{cursor:pointer;font-weight:600}
+.note{background:#fff8e1;border-left:4px solid #f5b400;padding:8px 14px;border-radius:6px;margin:10px 0}
+@media(max-width:800px){#burger{display:block}nav{transform:translateX(-100%);transition:.25s;z-index:9}nav.open{transform:none}main{margin-left:0;padding:16px 12px}}
+</style>
+</head>
+<body>
+<header>
+  <button id="burger" onclick="document.querySelector('nav').classList.toggle('open')">☰</button>
+  <h1><span class="b">কুকুর ও বিড়াল শনাক্তকরণ (YOLOv8)</span><span class="e">Dog &amp; Cat Detection (YOLOv8)</span></h1>
+  <button id="lang" onclick="tgl()">English</button>
+</header>
+
+<nav onclick="this.classList.remove('open')">
+  <a href="#overview"><span class="b">১. পরিচিতি</span><span class="e">1. Overview</span></a>
+  <a href="#folders"><span class="b">২. ফোল্ডার স্ট্রাকচার</span><span class="e">2. Folder Structure</span></a>
+  <a href="#steps"><span class="b">৩. কী করবেন</span><span class="e">3. What To Do</span></a>
+  <a href="#cells"><span class="b">৪. সেল ব্যাখ্যা</span><span class="e">4. Cells Explained</span></a>
+  <a href="#io"><span class="b">৫. ইনপুট ও আউটপুট</span><span class="e">5. Input &amp; Output</span></a>
+  <a href="#split"><span class="b">৬. ডেটা ভাগ (Split)</span><span class="e">6. Data Split</span></a>
+  <a href="#viva"><span class="b">৭. ভাইভা প্রশ্ন</span><span class="e">7. Viva Questions</span></a>
+  <a href="#fix"><span class="b">৮. সমস্যা ও সমাধান</span><span class="e">8. Troubleshooting</span></a>
+</nav>
+
+<main>
+<section id="overview">
+  <h2><span class="b">১. প্রজেক্ট পরিচিতি</span><span class="e">1. Project Overview</span></h2>
+  <p class="b">এই প্রজেক্টে YOLOv8 মডেল ব্যবহার করে ছবির ভেতরের <b>বিড়াল (cat)</b> ও <b>কুকুর (dog)</b> চিনে তাদের চারপাশে বর্ডার বক্স আঁকা হয়। একটি ছবিতে একাধিক প্রাণী বা দুটির মিশ্রণ থাকলেও কাজ করে। আপনাকে শুধু <code>train/images</code> ফোল্ডারে ছবি দিতে হবে—লেবেল, valid, test ও data.yaml নোটবুক নিজেই বানায়।</p>
+  <p class="e">This project uses a YOLOv8 model to detect <b>cats</b> and <b>dogs</b> in images and draw a border box around each one. It works with several animals in one image, or a mix of both. You only put images in <code>train/images</code>; the notebook creates labels, valid, test and data.yaml itself.</p>
+  <table>
+    <tr><th><span class="b">বিষয়</span><span class="e">Item</span></th><th><span class="b">বিবরণ</span><span class="e">Details</span></th></tr>
+    <tr><td><span class="b">মডেল</span><span class="e">Model</span></td><td>YOLOv8n (training), YOLOv8m (auto-labeling)</td></tr>
+    <tr><td><span class="b">ক্লাস</span><span class="e">Classes</span></td><td>0 = cat, 1 = dog</td></tr>
+    <tr><td><span class="b">প্ল্যাটফর্ম</span><span class="e">Platform</span></td><td>Google Colab + Google Drive</td></tr>
+    <tr><td><span class="b">ট্রেনিং</span><span class="e">Training</span></td><td>20 epochs, imgsz 640, batch 8</td></tr>
+    <tr><td><span class="b">ডিসপ্লে সীমা</span><span class="e">Display limit</span></td><td><span class="b">সর্বোচ্চ ১০টি ছবি</span><span class="e">Max 10 images</span></td></tr>
+  </table>
+</section>
+
+<section id="folders">
+  <h2><span class="b">২. ফোল্ডার স্ট্রাকচার</span><span class="e">2. Folder Structure</span></h2>
+  <p class="b"><b>আপনি যা দেবেন</b> (Google Drive-এ):</p><p class="e"><b>What you provide</b> (on Google Drive):</p>
+<pre>MyDrive/
+└── dog_cat_dataset/
+    └── dog_cat/
+        └── train/
+            └── images/    &larr; cat &amp; dog images only</pre>
+  <p class="b"><b>নোটবুক নিজে বানাবে</b> (Colab-এ <code>/content/dog_cat</code>):</p><p class="e"><b>Created automatically</b> (Colab <code>/content/dog_cat</code>):</p>
+<pre>dog_cat/
+├── data.yaml
+├── train/  images + labels   (75%)
+├── valid/  images + labels   (15%)
+└── test/   images + labels   (10%)
+
+runs/detect/dog_cat_detector/weights/
+├── best.pt   &larr; saved also to MyDrive/best.pt
+└── last.pt</pre>
+</section>
+
+<section id="steps">
+  <h2><span class="b">৩. কী করবেন (ধাপে ধাপে)</span><span class="e">3. What To Do (Step by Step)</span></h2>
+  <ol class="b">
+    <li>zip ফাইল unzip করুন এবং সব বিড়াল/কুকুরের ছবি <code>dog_cat_dataset/dog_cat/train/images/</code> ফোল্ডারে রাখুন। <code>PUT_YOUR_IMAGES_HERE.txt</code> ফাইলটি মুছে দিন।</li>
+    <li>পুরো <code>dog_cat_dataset</code> ফোল্ডার Google Drive-এর <b>MyDrive</b>-এ আপলোড করুন।</li>
+    <li>নোটবুকটি Google Colab-এ খুলুন। <b>Runtime → Change runtime type → T4 GPU</b> নির্বাচন করুন।</li>
+    <li>Cell 1 থেকে Cell 8 পর্যন্ত ক্রমানুসারে Run করুন (Cell 3-এ Drive অনুমতি দিন)।</li>
+    <li>Cell 6 শেষ হলে (Results saved to ...) Cell 7 ও 8 চালান। শেষে সর্বোচ্চ ১০টি ছবিতে বক্সসহ ফলাফল দেখা যাবে।</li>
+  </ol>
+  <ol class="e">
+    <li>Unzip the file and put all cat/dog images in <code>dog_cat_dataset/dog_cat/train/images/</code>. Delete <code>PUT_YOUR_IMAGES_HERE.txt</code>.</li>
+    <li>Upload the whole <code>dog_cat_dataset</code> folder to <b>MyDrive</b> on Google Drive.</li>
+    <li>Open the notebook in Google Colab. Choose <b>Runtime → Change runtime type → T4 GPU</b>.</li>
+    <li>Run Cell 1 to Cell 8 in order (allow Drive access in Cell 3).</li>
+    <li>After Cell 6 finishes (Results saved to ...), run Cell 7 and 8. You will see up to 10 images with boxes.</li>
+  </ol>
+  <div class="note"><span class="b">টিপ: ফাইলের নামে <code>cat</code> বা <code>dog</code> থাকলে (যেমন dog_001.jpg) একক-প্রাণীর ছবিতে লেবেল আরও নির্ভুল হয়।</span><span class="e">Tip: file names containing <code>cat</code> or <code>dog</code> (e.g. dog_001.jpg) make labels more accurate for single-animal images.</span></div>
+</section>
+
+<section id="cells">
+  <h2><span class="b">৪. সেলগুলোর ব্যাখ্যা</span><span class="e">4. Cells Explained</span></h2>
+  <table>
+    <tr><th>Cell</th><th><span class="b">কাজ</span><span class="e">Purpose</span></th></tr>
+    <tr><td>1</td><td><span class="b">ultralytics, opencv, matplotlib ইনস্টল</span><span class="e">Install ultralytics, opencv, matplotlib</span></td></tr>
+    <tr><td>2</td><td><span class="b">লাইব্রেরি import</span><span class="e">Import libraries</span></td></tr>
+    <tr><td>3</td><td><span class="b">Google Drive মাউন্ট</span><span class="e">Mount Google Drive</span></td></tr>
+    <tr><td>4</td><td><span class="b">অটো লেবেল তৈরি, train/valid/test ভাগ, data.yaml</span><span class="e">Auto-create labels, train/valid/test split, data.yaml</span></td></tr>
+    <tr><td>5</td><td><span class="b">লেবেল যাচাই (cat/dog বক্স গণনা)</span><span class="e">Check labels (count cat/dog boxes)</span></td></tr>
+    <tr><td>6</td><td><span class="b">YOLOv8n ট্রেনিং (20 epochs)</span><span class="e">Train YOLOv8n (20 epochs)</span></td></tr>
+    <tr><td>7</td><td><span class="b">best.pt লোড ও Drive-এ সেভ</span><span class="e">Load best.pt and save to Drive</span></td></tr>
+    <tr><td>8</td><td><span class="b">সর্বোচ্চ ১০টি ছবিতে বর্ডার বক্সসহ ডিটেকশন দেখানো</span><span class="e">Show detections with border boxes on max 10 images</span></td></tr>
+  </table>
+</section>
+
+<section id="io">
+  <h2><span class="b">৫. ইনপুট ও আউটপুট ভিজ্যুয়ালাইজেশন</span><span class="e">5. Input &amp; Output Visualization</span></h2>
+  <div class="flow">
+    <div>🖼️ <span class="b">ছবি</span><span class="e">Images</span></div><i>→</i>
+    <div>🏷️ <span class="b">অটো লেবেল</span><span class="e">Auto-label</span></div><i>→</i>
+    <div>✂️ Train / Valid / Test</div><i>→</i>
+    <div>🧠 <span class="b">ট্রেনিং</span><span class="e">Training</span></div><i>→</i>
+    <div>💾 best.pt</div><i>→</i>
+    <div>📦 <span class="b">বক্সসহ ফলাফল</span><span class="e">Boxed result</span></div>
+  </div>
+  <div class="io">
+    <figure>
+      <div class="img"><span class="a" style="left:18%;top:40%">🐱</span><span class="a" style="left:58%;top:36%">🐶</span></div>
+      <figcaption><b><span class="b">ইনপুট:</span><span class="e">Input:</span></b> <span class="b">সাধারণ ছবি (বক্স নেই)</span><span class="e">plain image (no boxes)</span></figcaption>
+    </figure>
+    <figure>
+      <div class="img"><span class="a" style="left:18%;top:40%">🐱</span><span class="a" style="left:58%;top:36%">🐶</span>
+        <div class="bx" style="left:10%;top:28%;width:32%;height:62%;border-color:var(--cat)"><em style="background:var(--cat)">cat 0.91</em></div>
+        <div class="bx" style="left:50%;top:26%;width:34%;height:64%;border-color:var(--dog)"><em style="background:var(--dog)">dog 0.88</em></div></div>
+      <figcaption><b><span class="b">আউটপুট:</span><span class="e">Output:</span></b> <span class="b">প্রতিটি প্রাণীর চারপাশে বক্স (বিড়াল = কমলা, কুকুর = সবুজ)</span><span class="e">a box around each animal (cat = orange, dog = green)</span> — <code>found: 1 cat, 1 dog</code></figcaption>
+    </figure>
+  </div>
+  <p class="b"><b>লেবেল ফাইলের ফরম্যাট</b> (প্রতি লাইনে একটি প্রাণী; মান ০–১):</p><p class="e"><b>Label file format</b> (one animal per line; values 0–1):</p>
+<pre># class_id  x_center  y_center  width  height
+0 0.285000 0.540000 0.300000 0.600000   # cat
+1 0.670000 0.520000 0.320000 0.620000   # dog</pre>
+</section>
+
+<section id="split">
+  <h2><span class="b">৬. ডেটা ভাগ (75 / 15 / 10)</span><span class="e">6. Data Split (75 / 15 / 10)</span></h2>
+  <p class="b">মোট ১০০% ছবি তিন ভাগে যায়; কোনো ছবি বাদ যায় না। সবগুলো দিয়ে ট্রেনিং করলে মডেল সত্যিই ভালো কি না বোঝা যায় না, তাই কিছু ছবি আলাদা রাখা হয়।</p>
+  <p class="e">100% of images are divided into three parts; none is lost. Training on everything would make it impossible to tell whether the model really works, so some images are held back.</p>
+  <table>
+    <tr><th>Folder</th><th>%</th><th><span class="b">কাজ</span><span class="e">Use</span></th></tr>
+    <tr><td>train</td><td>75</td><td><span class="b">মডেল শেখে</span><span class="e">Model learns</span></td></tr>
+    <tr><td>valid</td><td>15</td><td><span class="b">প্রতি epoch-এ যাচাই, best.pt বাছাই</span><span class="e">Checked each epoch, picks best.pt</span></td></tr>
+    <tr><td>test</td><td>10</td><td><span class="b">নতুন ছবিতে চূড়ান্ত পরীক্ষা (Cell 8)</span><span class="e">Final test on unseen images (Cell 8)</span></td></tr>
+  </table>
+  <p class="b">পরিবর্তন করতে Cell 4-এ <code>VALID_FRAC, TEST_FRAC</code> এডিট করুন। ছোট ডেটাসেটে ৮০/১০/১০, বড়টিতে ৯০/৫/৫ ব্যবহার করা যায়।</p>
+  <p class="e">To change it, edit <code>VALID_FRAC, TEST_FRAC</code> in Cell 4. Use 80/10/10 for small datasets, 90/5/5 for large ones.</p>
+</section>
+
+<section id="viva">
+  <h2><span class="b">৭. ভাইভা প্রশ্ন ও উত্তর</span><span class="e">7. Viva Questions &amp; Answers</span></h2>
+  <details><summary><span class="b">১. YOLO কী?</span><span class="e">1. What is YOLO?</span></summary>
+    <p class="b">YOLO (You Only Look Once) একটি রিয়েল-টাইম অবজেক্ট ডিটেকশন অ্যালগরিদম। এটি একবারেই পুরো ছবি দেখে বস্তুর অবস্থান (বক্স), ক্লাস ও কনফিডেন্স বের করে।</p>
+    <p class="e">YOLO (You Only Look Once) is a real-time object detection algorithm. It looks at the whole image in one pass and outputs boxes, classes and confidence scores.</p></details>
+  <details><summary><span class="b">২. Classification ও Detection-এর পার্থক্য কী?</span><span class="e">2. Classification vs Detection?</span></summary>
+    <p class="b">Classification পুরো ছবির একটি লেবেল দেয় (যেমন "কুকুর")। Detection বস্তুটি <b>কোথায়</b> আছে তা বক্স দিয়ে দেখায় এবং একাধিক বস্তু শনাক্ত করতে পারে।</p>
+    <p class="e">Classification gives one label for the whole image (e.g. "dog"). Detection also tells <b>where</b> each object is with a box and can find several objects.</p></details>
+  <details><summary><span class="b">৩. লেবেল ফাইলে কী থাকে?</span><span class="e">3. What does a label file contain?</span></summary>
+    <p class="b">প্রতি লাইনে: <code>class x_center y_center width height</code>। মানগুলো ০ থেকে ১-এর মধ্যে normalize করা। 0 = cat, 1 = dog।</p>
+    <p class="e">Each line: <code>class x_center y_center width height</code>, normalized between 0 and 1. 0 = cat, 1 = dog.</p></details>
+  <details><summary><span class="b">৪. লেবেল কীভাবে অটো তৈরি হয়?</span><span class="e">4. How are labels created automatically?</span></summary>
+    <p class="b">COCO-তে প্রশিক্ষিত YOLOv8m মডেল প্রতিটি cat (15) ও dog (16) খুঁজে বক্স বের করে এবং তা YOLO ফরম্যাটে সেভ হয়। এটি pseudo-labeling; তাই কিছু বক্স অসম্পূর্ণ হতে পারে।</p>
+    <p class="e">A COCO-pretrained YOLOv8m finds each cat (15) and dog (16) and the boxes are saved in YOLO format. This is pseudo-labeling, so some boxes may be imperfect.</p></details>
+  <details><summary><span class="b">৫. Train, Valid ও Test কেন আলাদা?</span><span class="e">5. Why separate Train, Valid and Test?</span></summary>
+    <p class="b">মডেল training ছবি মুখস্থ করে ফেলতে পারে (overfitting)। Valid দিয়ে ট্রেনিংয়ের সময় এবং Test দিয়ে নতুন ছবিতে সঠিক মূল্যায়ন করা হয়।</p>
+    <p class="e">A model can memorize training images (overfitting). Valid checks progress during training; Test gives an honest score on unseen images.</p></details>
+  <details><summary><span class="b">৬. Epoch, batch size ও imgsz কী?</span><span class="e">6. What are epoch, batch size and imgsz?</span></summary>
+    <p class="b"><b>Epoch</b> = পুরো ডেটা একবার দেখা (এখানে ২০ বার)। <b>Batch</b> = একসঙ্গে কতগুলো ছবি প্রসেস হয় (৮)। <b>imgsz</b> = ছবির আকার (৬৪০ পিক্সেল)।</p>
+    <p class="e"><b>Epoch</b> = one full pass over the data (20 here). <b>Batch</b> = images processed together (8). <b>imgsz</b> = input image size (640 px).</p></details>
+  <details><summary><span class="b">৭. Confidence ও IoU কী?</span><span class="e">7. What are confidence and IoU?</span></summary>
+    <p class="b"><b>Confidence</b> = মডেল কতটা নিশ্চিত (এখানে ≥ 0.25)। <b>IoU</b> = দুটি বক্সের ওভারল্যাপের অনুপাত; NMS-এ ডুপ্লিকেট বক্স বাদ দিতে ব্যবহৃত হয়।</p>
+    <p class="e"><b>Confidence</b> = how sure the model is (≥ 0.25 here). <b>IoU</b> = overlap ratio of two boxes; used in NMS to remove duplicate boxes.</p></details>
+  <details><summary><span class="b">৮. mAP, Precision ও Recall কী?</span><span class="e">8. What are mAP, Precision and Recall?</span></summary>
+    <p class="b"><b>Precision</b> = ডিটেক্ট করাগুলোর মধ্যে কতটি সঠিক। <b>Recall</b> = আসল বস্তুর মধ্যে কতটি পাওয়া গেছে। <b>mAP</b> = সামগ্রিক ডিটেকশন মান।</p>
+    <p class="e"><b>Precision</b> = how many detections are correct. <b>Recall</b> = how many real objects were found. <b>mAP</b> = overall detection quality.</p></details>
+  <details><summary><span class="b">৯. best.pt ও last.pt-এর পার্থক্য?</span><span class="e">9. best.pt vs last.pt?</span></summary>
+    <p class="b">best.pt হলো valid ফলাফল সবচেয়ে ভালো হওয়া epoch-এর ওয়েট; last.pt হলো শেষ epoch-এর।</p>
+    <p class="e">best.pt holds the weights from the epoch with the best validation result; last.pt is from the final epoch.</p></details>
+  <details><summary><span class="b">১০. একাধিক প্রাণী বা মিশ্র ছবি কীভাবে সামলানো হয়?</span><span class="e">10. How are multiple or mixed animals handled?</span></summary>
+    <p class="b">প্রতিটি প্রাণীর জন্য আলাদা বক্স ও ক্লাস লেবেল হয়। একটি ছবিতে একাধিক লাইন থাকে (cat ও dog দুটোই থাকতে পারে)। ফাইলের নাম দিয়ে শুধু একক-প্রাণীর ছবির ক্লাস ঠিক করা হয়।</p>
+    <p class="e">Each animal gets its own box and class, so one image can have many lines (cats and dogs together). The file name is used only to correct single-animal images.</p></details>
+  <details><summary><span class="b">১১. এই পদ্ধতির সীমাবদ্ধতা কী?</span><span class="e">11. What are the limitations?</span></summary>
+    <p class="b">লেবেল মেশিন-তৈরি বলে ভুল থাকতে পারে; ঘন ভিড় বা আংশিক ঢাকা প্রাণী মিস হতে পারে; ছোট ডেটাসেটে নির্ভুলতা কম হয়। হাতে-করা লেবেল (যেমন Roboflow) আরও ভালো।</p>
+    <p class="e">Labels are machine-made so may contain errors; crowded or partly hidden animals can be missed; small datasets give lower accuracy. Hand-made labels (e.g. Roboflow) are better.</p></details>
+</section>
+
+<section id="fix">
+  <h2><span class="b">৮. সমস্যা ও সমাধান</span><span class="e">8. Troubleshooting</span></h2>
+  <table>
+    <tr><th><span class="b">সমস্যা</span><span class="e">Problem</span></th><th><span class="b">সমাধান</span><span class="e">Fix</span></th></tr>
+    <tr><td>No trained weights found</td><td><span class="b">Cell 4 → Cell 6 আবার চালান এবং "Results saved to ..." পর্যন্ত অপেক্ষা করুন।</span><span class="e">Re-run Cell 4 then Cell 6 and wait for "Results saved to ...".</span></td></tr>
+    <tr><td>FileNotFoundError (path)</td><td><span class="b">Drive-এ <code>MyDrive/dog_cat_dataset/dog_cat/train/images</code> পথ ঠিক আছে কি দেখুন।</span><span class="e">Check that <code>MyDrive/dog_cat_dataset/dog_cat/train/images</code> exists on Drive.</span></td></tr>
+    <tr><td>Training very slow</td><td><span class="b">Runtime-এ GPU (T4) চালু করুন।</span><span class="e">Enable the GPU (T4) runtime.</span></td></tr>
+    <tr><td>Boxes missing / many wrong</td><td><span class="b">Cell 4-এ <code>LABEL_CONF</code> কমান (০.২০) বা বেশি ছবি/epoch ব্যবহার করুন।</span><span class="e">Lower <code>LABEL_CONF</code> in Cell 4 (0.20) or use more images/epochs.</span></td></tr>
+    <tr><td>Colab restarted</td><td><span class="b">Drive-এর <code>best.pt</code> থেকে Cell 7 আবার মডেল লোড করবে।</span><span class="e">Cell 7 reloads the model from <code>best.pt</code> saved on Drive.</span></td></tr>
+  </table>
+</section>
+</main>
+
+<script>
+function tgl(){
+  var h=document.documentElement,en=h.dataset.l==="bn";
+  h.dataset.l=en?"en":"bn";h.lang=en?"en":"bn";
+  document.getElementById("lang").textContent=en?"বাংলা":"English";
+  try{localStorage.setItem("l",h.dataset.l)}catch(e){}
+}
+try{if(localStorage.getItem("l")==="en")tgl()}catch(e){}
+</script>
+</body>
+</html>
